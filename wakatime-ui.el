@@ -46,7 +46,7 @@
 (defvar wakatime-ui--check-timer nil
   "Current timer process for checking wakatime information")
 
-(defvar wakatime-current-session nil
+(defvar wakatime-current-session ""
   "Current session information")
 
 (defvar wakatime-ui--buffer-name "*WakatimeUI*"
@@ -120,7 +120,9 @@
 (defun wakatime-ui--watch-time ()
   "Subscribe to time activity.
 Could be stopped by `wakatime-ui--stop-watch-time'"
-  (add-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time))
+  (if (bound-and-true-p doom-first-file-hook)
+      (add-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time)
+    (wakatime-ui--start-watch-time)))
 
 (defun wakatime-ui--stop-watch-time ()
   "Stop to subscribe time activity."
