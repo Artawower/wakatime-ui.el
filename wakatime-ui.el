@@ -71,7 +71,8 @@
   ;; (add-to-list 'mode-line-misc-info (propertize (concat text " ") 'face '(:foreground "#f65866"))))
   ;; (setq-default mode-line-misc-info (propertize (concat text " ") 'face '(:foreground "#f65866"))))
   ;; (setq-default mode-line-misc-info (concat text " ")))
-  (setq mode-line-misc-info (propertize text 'face '(:foreground "#f65866")))
+  (when (boundp 'doom-version)
+    (setq mode-line-misc-info (propertize text 'face '(:foreground "#f65866"))))
   (setq wakatime-current-session text))
 
 (defun wakatime-ui--clear-modeline (&optional directory cache)
@@ -130,6 +131,12 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
   (when wakatime-ui--check-timer
     (cancel-timer wakatime-ui--check-timer)
     (setq wakatime-ui--check-timer nil)))
+
+(defun wakatime-ui--init-modeline ()
+  "Init modeline information."
+  (add-to-list 'mode-line-format '(:eval
+                                   (when wakatime-ui-mode
+                                     (propertize wakatime-current-session 'face '(:foreground "#f65866")))) t))
 
 ;;;###autoload
 (define-minor-mode wakatime-ui-mode
@@ -197,7 +204,6 @@ Add support for other modeline in future."
       (wakatime-ui--insert-image-from-url wakatim-ui-schedule-url))
 
     (when (posframe-workable-p)
-      (message "posframe show")
       (run-at-time 1 0
                    #'(lambda ()
                        (posframe-show my-posframe-buffer
