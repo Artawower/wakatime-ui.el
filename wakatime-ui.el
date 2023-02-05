@@ -56,29 +56,26 @@
   "Name of binary for wakatime api.")
 
 (defvar wakatime-ui--command-args '(:today-time "--today")
-  "Plist of available arguments")
+  "Plist of available arguments.")
 
 (defvar wakatime-ui--busy nil
   "Is there wakatime ui busy right now?")
 
-(defun wakatime-ui--format-time ())
-
 (defun wakatime-ui--update-time (text)
   "Update modeline information by TEXT."
-  ;; TODO: add face for modeline info, check correct modeline mode
-  ;; (setq-default mode-line-misc-info (propertize text 'face '(:foreground "red" :bold t))))
-  ;; (setq global-mode-string (propertize text 'face '(:foreground "#f65866"))))
-  ;; (add-to-list 'mode-line-misc-info (propertize (concat text " ") 'face '(:foreground "#f65866"))))
-  ;; (setq-default mode-line-misc-info (propertize (concat text " ") 'face '(:foreground "#f65866"))))
-  ;; (setq-default mode-line-misc-info (concat text " ")))
-  (when (boundp 'doom-version)
-    (setq mode-line-misc-info (propertize text 'face '(:foreground "#f65866"))))
-  (setq wakatime-current-session text))
+  (when (boundp 'doom-modeline-mode)
+    (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
+           (content (propertize text 'face '(:foreground "#f65866"))))
+      (when already-in-modeline-p
+        (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
+      (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
+      (setq wakatime-current-session text))))
 
 (defun wakatime-ui--clear-modeline (&optional directory cache)
-  "Clear modeline information."
+  "Clear modeline information.
+DIRECTORY - directory for wakatime api.
+CACHE - cache file for wakatime api."
   (interactive)
-  ;; (message "mee")
   (setq-default mode-line-misc-info nil))
 
 (defun wakatime-ui--handle-process-output (process signal buffer-name)
@@ -94,8 +91,7 @@
     (setq wakatime-ui--busy nil)))
 
 (defun wakatime-ui--get-changes ()
-  "Get changes of current spent time."
-  (message "Get changes from wakatime!")
+  "Get change of current spent time."
   (unless wakatime-ui--busy
     (let* ((binary (wakatime-find-binary wakatime-ui--binary-name))
            (process (start-process
@@ -106,15 +102,14 @@
       (setq wakatime-ui--busy t)
       (when (process-live-p process)
         (set-process-sentinel process
-                              #'(lambda (proc signal)
-                                  (wakatime-ui--handle-process-output
-                                   proc
-                                   signal
-                                   wakatime-ui--buffer-name)))))))
+                              (lambda (proc signal)
+                                (wakatime-ui--handle-process-output
+                                 proc
+                                 signal
+                                 wakatime-ui--buffer-name)))))))
 
 (defun wakatime-ui--start-watch-time ()
   (unless wakatime-ui--check-timer
-    (message "Wakatime ui check time")
     (setq wakatime-ui--check-timer
           (run-with-timer 20 wakatime-ui--update-timeout 'wakatime-ui--get-changes))))
 
