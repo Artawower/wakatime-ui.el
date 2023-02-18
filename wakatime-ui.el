@@ -62,7 +62,8 @@
   "Is there wakatime ui busy right now?")
 
 (defun wakatime-ui--update-time (text)
-  "Update modeline information by TEXT."
+  "Update mode line information by TEXT."
+  (setq text (concat text " "))
   (when (boundp 'doom-modeline-mode)
     (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
            (content (propertize text 'face '(:foreground "#f65866"))))
@@ -86,7 +87,9 @@ CACHE - cache file for wakatime api."
       (switch-to-buffer-other-window buffer-name)
       (let* ((output (buffer-substring (point-min) (point-max))))
         (kill-matching-buffers buffer-name nil t)
-        (wakatime-ui--update-time (replace-regexp-in-string "\n\\'" "" output))))
+        (wakatime-ui--update-time (concat
+                                   (replace-regexp-in-string "\n\\'" "" output)
+                                   " "))))
     (shell-command-sentinel process signal)
     (setq wakatime-ui--busy nil)))
 
@@ -135,9 +138,8 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
 
 ;;;###autoload
 (define-minor-mode wakatime-ui-mode
-  "Wakatime ui mode. Add time track to doom modeline.
-TODO:
-Add support for other modeline in future."
+  "Wakatime ui mode. Add time track to doom modeline."
+
   :init-value nil
   :global t
   :lighter nil
@@ -158,10 +160,9 @@ Add support for other modeline in future."
   :group 'wakatime-ui)
 
 (defun wakatime-ui--insert-image-from-url (&optional url)
-  (interactive)
+  "Insert image from URL."
   (unless url (setq url (url-get-url-at-point)))
-  (unless url
-    (error "Couldn't find URL."))
+  (unless url (error "Couldn't find URL for wakatime"))
   (let ((buffer (url-retrieve-synchronously url)))
     (unwind-protect
         (let ((data (with-current-buffer buffer
@@ -179,7 +180,7 @@ Add support for other modeline in future."
     map))
 
 (define-minor-mode wakatime-ui--preview-mode
-  "Wakatime ui preview"
+  "Wakatime UI preview mode."
   :init-value nil
   :global nil
   :lighter nil
@@ -210,4 +211,5 @@ Add support for other modeline in future."
                        )))))
 
 (provide 'wakatime-ui)
-;;; wakatime-ui.el ends here
+;;; wakatime-ui.el ends 
+
