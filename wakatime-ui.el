@@ -34,7 +34,7 @@
   :type 'int)
 
 (defcustom wakatim-ui-schedule-url nil
-  "Url of chart")
+  "Url of chart.")
 
 (defface wakatime-ui--modeline-face
   '((t :foreground "#f65866"
@@ -44,10 +44,10 @@
   :group 'wakatime-ui)
 
 (defvar wakatime-ui--check-timer nil
-  "Current timer process for checking wakatime information")
+  "Current timer process for checking wakatime information.")
 
-(defvar wakatime-current-session ""
-  "Current session information")
+(defvar wakatime-ui-current-session-text ""
+  "Current session information.")
 
 (defvar wakatime-ui--buffer-name "*WakatimeUI*"
   "Buffer name for process output.")
@@ -70,7 +70,7 @@
       (when already-in-modeline-p
         (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
       (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
-      (setq wakatime-current-session text))))
+      (setq wakatime-ui-current-session-text text))))
 
 (defun wakatime-ui--clear-modeline (&optional directory cache)
   "Clear modeline information.
@@ -112,6 +112,7 @@ CACHE - cache file for wakatime api."
                                  wakatime-ui--buffer-name)))))))
 
 (defun wakatime-ui--start-watch-time ()
+  "Start to subscribe time activity."
   (unless wakatime-ui--check-timer
     (setq wakatime-ui--check-timer
           (run-with-timer 20 wakatime-ui--update-timeout 'wakatime-ui--get-changes))))
@@ -132,14 +133,14 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
 
 (defun wakatime-ui--init-modeline ()
   "Init modeline information."
-  (add-to-list 'mode-line-format '(:eval
-                                   (when wakatime-ui-mode
-                                     (propertize wakatime-current-session 'face '(:foreground "#f65866")))) t))
+  (add-to-list 'mode-line-format
+               '(:eval
+                 (when wakatime-ui-mode
+                   (propertize wakatime-ui-current-session-text 'face '(:foreground "#f65866")))) t))
 
 ;;;###autoload
 (define-minor-mode wakatime-ui-mode
-  "Wakatime ui mode. Add time track to doom modeline."
-
+  "Wakatime ui mode.  Add time track to doom modeline."
   :init-value nil
   :global t
   :lighter nil
@@ -190,7 +191,7 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
 
 ;;;###autoload
 (defun wakatime-ui-show-dashboard ()
-  "Show dashboard with information about current widget"
+  "Show dashboard with information about current widget."
   (interactive)
   (let ((my-posframe-buffer "*wakatime-ui*"))
 
@@ -211,5 +212,4 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
                        )))))
 
 (provide 'wakatime-ui)
-;;; wakatime-ui.el ends 
-
+;;; wakatime-ui.el ends here
