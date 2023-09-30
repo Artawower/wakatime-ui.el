@@ -64,13 +64,12 @@
 (defun wakatime-ui--update-time (text)
   "Update mode line information by TEXT."
   (setq text (concat text " "))
-  (when (boundp 'doom-modeline-mode)
-    (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
-           (content (propertize text 'face '(:foreground "#f65866"))))
-      (when already-in-modeline-p
-        (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
-      (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
-      (setq wakatime-ui-current-session-text text))))
+  (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
+         (content (propertize text 'face 'wakatime-ui--modeline-face)))
+    (when already-in-modeline-p
+      (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
+    (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
+    (setq wakatime-ui-current-session-text text)))
 
 (defun wakatime-ui--clear-modeline (&optional directory cache)
   "Clear modeline information.
