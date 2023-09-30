@@ -33,8 +33,10 @@
   :group 'wakatime-ui
   :type 'int)
 
-(defcustom wakatim-ui-schedule-url nil
-  "Url of chart.")
+(defcustom wakatime-ui-schedule-url nil
+  "Url of chart."
+  :group 'wakatime-ui
+  :type 'string)
 
 (defface wakatime-ui--modeline-face
   '((t :foreground "#f65866"
