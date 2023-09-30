@@ -125,7 +125,7 @@ CACHE - cache file for wakatime api."
   (add-to-list 'mode-line-format
                '(:eval
                  (when wakatime-ui-mode
-                   (propertize wakatime-ui-current-session-text 'face '(:foreground "#f65866")))) t))
+                   (propertize wakatime-ui-current-session-text 'face 'wakatime-ui--modeline-face))) t))
 
 ;;;###autoload
 (define-minor-mode wakatime-ui-mode
