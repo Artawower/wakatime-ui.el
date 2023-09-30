@@ -39,9 +39,7 @@
   :type 'string)
 
 (defface wakatime-ui--modeline-face
-  '((t :foreground "#f65866"
-       :background nil
-       :bold t))
+  '((t :inherit modeline))
   "Face for wakatime ui modeline info."
   :group 'wakatime-ui)
 
