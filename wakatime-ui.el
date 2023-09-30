@@ -89,7 +89,8 @@ CACHE - cache file for wakatime api."
         (wakatime-ui--update-time (concat
                                    (replace-regexp-in-string "\n\\'" "" output)
                                    " "))))
-    (shell-command-sentinel process signal)
+    (cl-letf (((symbol-function #'message) (symbol-function #'ignore)))
+      (shell-command-sentinel process signal))
     (setq wakatime-ui--busy nil)))
 
 (defun wakatime-ui--get-changes ()
