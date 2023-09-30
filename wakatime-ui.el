@@ -117,16 +117,8 @@ CACHE - cache file for wakatime api."
     (setq wakatime-ui--check-timer
           (run-with-timer 20 wakatime-ui--update-timeout 'wakatime-ui--get-changes))))
 
-(defun wakatime-ui--watch-time ()
-  "Subscribe to time activity.
-Could be stopped by `wakatime-ui--stop-watch-time'"
-  (if (bound-and-true-p doom-first-file-hook)
-      (add-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time)
-    (wakatime-ui--start-watch-time)))
-
 (defun wakatime-ui--stop-watch-time ()
   "Stop to subscribe time activity."
-  (remove-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time)
   (when wakatime-ui--check-timer
     (cancel-timer wakatime-ui--check-timer)
     (setq wakatime-ui--check-timer nil)))
@@ -148,7 +140,7 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
   (if wakatime-ui-mode
       (progn
         (wakatime-ui--get-changes)
-        (wakatime-ui--watch-time))
+        (wakatime-ui--start-watch-time))
     (wakatime-ui--stop-watch-time)))
 
 ;;;###autoload
