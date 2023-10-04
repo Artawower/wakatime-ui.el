@@ -33,13 +33,13 @@
   :group 'wakatime-ui
   :type 'int)
 
-(defcustom wakatim-ui-schedule-url nil
-  "Url of chart.")
+(defcustom wakatime-ui-schedule-url nil
+  "Url of chart."
+  :group 'wakatime-ui
+  :type 'string)
 
 (defface wakatime-ui--modeline-face
-  '((t :foreground "#f65866"
-       :background nil
-       :bold t))
+  '((t :inherit modeline))
   "Face for wakatime ui modeline info."
   :group 'wakatime-ui)
 
@@ -63,14 +63,12 @@
 
 (defun wakatime-ui--update-time (text)
   "Update mode line information by TEXT."
-  (setq text (concat text " "))
-  (when (boundp 'doom-modeline-mode)
-    (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
-           (content (propertize text 'face '(:foreground "#f65866"))))
-      (when already-in-modeline-p
-        (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
-      (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
-      (setq wakatime-ui-current-session-text text))))
+  (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
+         (content (propertize text 'face 'wakatime-ui--modeline-face)))
+    (when already-in-modeline-p
+      (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
+    (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
+    (setq wakatime-ui-current-session-text text)))
 
 (defun wakatime-ui--clear-modeline (&optional directory cache)
   "Clear modeline information.
@@ -87,10 +85,9 @@ CACHE - cache file for wakatime api."
       (switch-to-buffer-other-window buffer-name)
       (let* ((output (buffer-substring (point-min) (point-max))))
         (kill-matching-buffers buffer-name nil t)
-        (wakatime-ui--update-time (concat
-                                   (replace-regexp-in-string "\n\\'" "" output)
-                                   " "))))
-    (shell-command-sentinel process signal)
+        (wakatime-ui--update-time (replace-regexp-in-string "\n\\'" "" output))))
+    (cl-letf (((symbol-function #'message) (symbol-function #'ignore)))
+      (shell-command-sentinel process signal))
     (setq wakatime-ui--busy nil)))
 
 (defun wakatime-ui--get-changes ()
@@ -117,16 +114,8 @@ CACHE - cache file for wakatime api."
     (setq wakatime-ui--check-timer
           (run-with-timer 20 wakatime-ui--update-timeout 'wakatime-ui--get-changes))))
 
-(defun wakatime-ui--watch-time ()
-  "Subscribe to time activity.
-Could be stopped by `wakatime-ui--stop-watch-time'"
-  (if (bound-and-true-p doom-first-file-hook)
-      (add-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time)
-    (wakatime-ui--start-watch-time)))
-
 (defun wakatime-ui--stop-watch-time ()
   "Stop to subscribe time activity."
-  (remove-hook 'doom-first-file-hook 'wakatime-ui--start-watch-time)
   (when wakatime-ui--check-timer
     (cancel-timer wakatime-ui--check-timer)
     (setq wakatime-ui--check-timer nil)))
@@ -136,7 +125,7 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
   (add-to-list 'mode-line-format
                '(:eval
                  (when wakatime-ui-mode
-                   (propertize wakatime-ui-current-session-text 'face '(:foreground "#f65866")))) t))
+                   (propertize wakatime-ui-current-session-text 'face 'wakatime-ui--modeline-face))) t))
 
 ;;;###autoload
 (define-minor-mode wakatime-ui-mode
@@ -148,7 +137,7 @@ Could be stopped by `wakatime-ui--stop-watch-time'"
   (if wakatime-ui-mode
       (progn
         (wakatime-ui--get-changes)
-        (wakatime-ui--watch-time))
+        (wakatime-ui--start-watch-time))
     (wakatime-ui--stop-watch-time)))
 
 ;;;###autoload
