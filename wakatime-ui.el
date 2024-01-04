@@ -85,7 +85,8 @@ CACHE - cache file for wakatime api."
       (switch-to-buffer-other-window buffer-name)
       (let* ((output (buffer-substring (point-min) (point-max))))
         (kill-matching-buffers buffer-name nil t)
-        (wakatime-ui--update-time (replace-regexp-in-string "\n\\'" "" output))))
+        (wakatime-ui--update-time
+         (concat (replace-regexp-in-string "\n\\'" "" output) " "))))
     (cl-letf (((symbol-function #'message) (symbol-function #'ignore)))
       (shell-command-sentinel process signal))
     (setq wakatime-ui--busy nil)))
