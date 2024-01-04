@@ -49,7 +49,7 @@
 (defvar wakatime-ui-current-session-text ""
   "Current session information.")
 
-(defvar wakatime-ui--buffer-name "*WakatimeUI*"
+(defvar wakatime-ui--buffer-name " *WakatimeUI*"
   "Buffer name for process output.")
 
 (defvar wakatime-ui--binary-name "wakatime-cli"
@@ -81,10 +81,9 @@ CACHE - cache file for wakatime api."
   "Handle background PROCESS SIGNAL and BUFFER-NAME."
   (when (memq (process-status process) '(exit signal))
     ;; TODO: check (process-exist-status process) 0!
-    (save-window-excursion
-      (switch-to-buffer-other-window buffer-name)
+    (with-current-buffer (get-buffer-create buffer-name)
       (let* ((output (buffer-substring (point-min) (point-max))))
-        (kill-matching-buffers buffer-name nil t)
+        (erase-buffer)
         (wakatime-ui--update-time (replace-regexp-in-string "\n\\'" "" output))))
     (cl-letf (((symbol-function #'message) (symbol-function #'ignore)))
       (shell-command-sentinel process signal))
