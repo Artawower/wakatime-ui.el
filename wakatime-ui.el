@@ -65,6 +65,8 @@
   "Update mode line information by TEXT."
   (let* ((already-in-modeline-p (assoc 'wakatime-ui-mode mode-line-misc-info))
          (content (propertize text 'face 'wakatime-ui--modeline-face)))
+    (unless (string= text "")
+      (setq content (concat content " ")))
     (when already-in-modeline-p
       (setf mode-line-misc-info (assoc-delete-all 'wakatime-ui-mode mode-line-misc-info)))
     (add-to-list 'mode-line-misc-info `(wakatime-ui-mode ,content))
